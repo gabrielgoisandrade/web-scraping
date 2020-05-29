@@ -33,7 +33,7 @@ __CLUSTER: str = 'seu cluster'
 __DATABASE: str = 'seu database'
 ```
 
-### Estrutura 
+#### Estrutura 
 
 ```text
 web-scraping
@@ -82,8 +82,6 @@ web-scraping
 |   |
 |   |__ update_data_service.py
 |
-|__ app.log
-|
 |__ app.py
 |
 |__ chromedriver.exe
@@ -95,6 +93,4 @@ web-scraping
 Selenium message:session not created: This version of ChromeDriver only supports Chrome version XX
 ```
 
-> **Acesse esse [link][chromedriver-url], baixe a versão mais atual do chromedriver (que seja compatível com a versão do seu browser), substitua o antigo e rode o projeto novamente.**
-
-[chromedriver-url]: https://chromedriver.chromium.org/downloads
+> **Acesse esse <a href="https://chromedriver.chromium.org/downloads" target="_blank">link</a>, baixe a versão mais atual do chromedriver (que seja compatível com a versão do seu browser), substitua o antigo e rode o projeto novamente.**
