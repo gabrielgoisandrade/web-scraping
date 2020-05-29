@@ -5,10 +5,10 @@ from log import error, info
 
 
 class ConnectionDb:
-    __USER: str = 'hdiyc_db'
-    __PSSW: str = 'USMTbkX8TfppIAdb'
-    __CLUSTER: str = 'hdiyccluster'
-    __DATABASE: str = 'HDIYC_db'
+    __USER: str = 'seu user'
+    __PSSW: str = 'sua senha'
+    __CLUSTER: str = 'seu cluster'
+    __DATABASE: str = 'seu database'
 
     @classmethod
     def connection(cls) -> MongoClient:
