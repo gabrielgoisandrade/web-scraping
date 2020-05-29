@@ -90,11 +90,11 @@ web-scraping
 ```
 ---
 
-*__Caso apareça uma mensagem de erro parecida com essa:__*
+> *__Caso apareça uma mensagem de erro parecida com essa:__*
 ```shell script
 Selenium message:session not created: This version of ChromeDriver only supports Chrome version XX
 ```
 
-**Acesse esse [link][chromedriver-url], baixe a versão mais atual do chromedriver (que seja compatível com a versão do seu browser), substitua o antigo e rode o projeto novamente.**
+> **Acesse esse [link][chromedriver-url], baixe a versão mais atual do chromedriver (que seja compatível com a versão do seu browser), substitua o antigo e rode o projeto novamente.**
 
 [chromedriver-url]: https://chromedriver.chromium.org/downloads
