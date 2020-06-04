@@ -21,33 +21,20 @@ class SendDataHelper:
         for region in regions:
             datas.append({
                 'regiao': region,
-                'registros': self.__records_and_total(collections['current'], str(region)),
+                'registros': self.__records(collections['current'], str(region)),
                 'comparativo': {
                     'ano_atual': {
-                        'media_anual': f"""{mean(self.__records(collections['current'], str(region))
-                                                          .values()): 0.2f}""",
+                        'media_anual': f"""{mean({k: v for k, v in self.__records(collections['current'], str(region))
+                                                 .items() if k != 'Total'}.values()): 0.2f}"""
                     },
                     'ano_passado': {
-                        'media_anual': f"""{mean(self.__records(collections['last'], str(region))
-                                                          .values()): 0.2f}""",
+                        'media_anual': f"""{mean({k: v for k, v in self.__records(collections['last'], str(region))
+                                                 .items() if k != 'Total'}.values()): 0.2f}"""
                     }
                 }
             })
 
         return datas
-
-    @staticmethod
-    def __records_and_total(collection: Collection, region: str) -> dict:
-        """
-        Retorna os registros e o total das ocorrências de cada região.
-
-        :param collection: collection a ser consultada.
-        :param region: região usada como filtro.
-        :return: registros da região que não estão como 0.
-        """
-        return {key: value for key, value
-                in remove_element(get_collection_datas(collection, {'regiao': region}),
-                                  '_id')['registros'].items()}
 
     @staticmethod
     def __records(collection: Collection, region: str) -> dict:
@@ -58,6 +45,5 @@ class SendDataHelper:
         :param region: região usada como filtro.
         :return: registros da região.
         """
-        return {key: value for key, value
-                in remove_element(get_collection_datas(collection, {'regiao': region}),
-                                  '_id')['registros'].items() if key != 'Total'}
+        return {k: v for k, v in remove_element(get_collection_datas(collection, {'regiao': region}),
+                                                '_id')['registros'].items()}
