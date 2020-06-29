@@ -1,7 +1,7 @@
-from .extractor_service import ExtractorService
-from .selector_service import SelectorService
-from .send_data_service import SendDataService
-from .update_data_service import UpdateDataService
+from .extractorService import ExtractorService
+from .selectorService import SelectorService
+from .sendDataService import SendDataService
+from .updateDataService import UpdateDataService
 
 
 send = SendDataService()

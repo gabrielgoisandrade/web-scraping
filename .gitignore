@@ -249,3 +249,8 @@ build/
 pyvenv.cfg
 .venv
 pip-selfcheck.json
+
+#exe
+.exe
+
+#logs

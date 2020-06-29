@@ -1,4 +1,4 @@
-from .log_config import Log
+from .logConfig import Log
 
 
 def info(msg: str) -> None: Log(msg).log_info()

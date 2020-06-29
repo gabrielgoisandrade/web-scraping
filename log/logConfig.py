@@ -1,10 +1,11 @@
 from logging import basicConfig, error, INFO, info, critical
+from os.path import join
 
 
 class Log:
 
     def __init__(self, msg: str):
-        basicConfig(filename='app.log', filemode='w+',
+        basicConfig(filename=join('logs', 'app.log'), filemode='w+',
                     format='%(name)s - %(levelname)s - %(asctime)s - %(message)s',
                     datefmt='%d-%b-%y %H:%M:%S', level=INFO)
         self.__msg = msg

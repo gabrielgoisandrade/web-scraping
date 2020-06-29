@@ -11,8 +11,7 @@ class DataSelector:
     __city: str = 'ctl00$conteudo$ddlMunicipios'
     __table: str = 'conteudo_divMensal'
 
-    def __init__(self, years: list):
-        self.__years = years
+    def __init__(self, years: list): self.__years = years
 
     def select_datas(self):
         """ Método responsável por selecionar os dados necessários para realização do scraping"""

@@ -4,8 +4,7 @@ from selenium.webdriver.support.select import Select
 
 class SelectorHelper:
 
-    def __init__(self, driver: WebDriver):
-        self.__driver = driver
+    def __init__(self, driver: WebDriver): self.__driver = driver
 
     def get_values(self, name: str) -> dict:
         """
@@ -32,7 +31,6 @@ class SelectorHelper:
         """
 
         selected_option = Select(self.__driver.find_element_by_name(name))
-
         selected_option.select_by_value(str(value))
 
     def get_raw_table(self, id_table: str) -> list:

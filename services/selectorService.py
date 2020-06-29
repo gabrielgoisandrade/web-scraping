@@ -1,4 +1,4 @@
-from datetime import datetime
+from os.path import join
 from time import sleep
 from typing import List
 
@@ -6,8 +6,7 @@ from selenium.webdriver import Chrome
 from selenium.webdriver.chrome.options import Options
 from selenium.webdriver.chrome.webdriver import WebDriver
 
-from database import get_collection_datas, current_year_occurrences, last_year_occurrences
-from selector.helper.selector_helper import SelectorHelper
+from selector.helper.selectorHelper import SelectorHelper
 
 
 class SelectorService:
@@ -15,7 +14,7 @@ class SelectorService:
     def __init__(self):
         options = Options()
         options.headless = True
-        self.__driver: WebDriver = Chrome(options=options)
+        self.__driver: WebDriver = Chrome(executable_path=join('driver', 'chromedriver.exe'), options=options)
         self.__helper = SelectorHelper(self.__driver)
 
     def open_browser(self, url: str) -> None:
@@ -81,7 +80,7 @@ class SelectorService:
         :param id_table: id da tabela.
         """
 
-        from services import extractor, send, update
+        from services import extractor
 
         scraping_datas: List[dict] = []
 
@@ -94,13 +93,6 @@ class SelectorService:
             scraping_datas.append(extractor.prepare_records(police_station, police_station.split('-')[1].strip(),
                                                             raw_table=self.__helper.get_raw_table(id_table=id_table)))
 
-        if year == datetime.now().year - 1:
-            if len(get_collection_datas(last_year_occurrences())) == 0:
-                send.send_datas(last_year_occurrences(), scraping_datas)
-            else:
-                update.update_occurrences(last_year_occurrences(), scraping_datas)
-
-        elif len(get_collection_datas(current_year_occurrences())) == 0:
-            send.send_datas(current_year_occurrences(), scraping_datas)
-        else:
-            update.update_occurrences(current_year_occurrences(), scraping_datas)
+        # if year == datetime.now().year - 1:
+        #     if len(get_collection(last_occurrences())) == 0:
+        #         send.send_datas(last_occurrences(), scraping_datas)
