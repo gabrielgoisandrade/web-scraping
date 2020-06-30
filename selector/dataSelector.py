@@ -14,7 +14,11 @@ class DataSelector:
     def __init__(self, years: list): self.__years = years
 
     def select_datas(self):
-        """ Método responsável por selecionar os dados necessários para realização do scraping"""
+        """
+        Método responsável por interagir com todos os filtros, e elementos do site, fazendo com que os dados
+        a serem extraídos fiquem acessíveis.
+
+        """
 
         selector.open_browser(self.__url)
 

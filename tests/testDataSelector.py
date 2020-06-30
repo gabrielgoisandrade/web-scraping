@@ -1,15 +1,14 @@
 import unittest
 from functools import wraps
-from pprint import pprint
-from time import sleep
+from time import sleep, time
 from typing import List, Union, Optional
 
+from bs4 import BeautifulSoup
 from pymongo.errors import PyMongoError
 from selenium.webdriver import Chrome
 from selenium.webdriver.chrome.options import Options
 from selenium.webdriver.support.select import Select
 
-from database import operations
 from log import error
 
 
@@ -46,12 +45,73 @@ class MyTestCase(unittest.TestCase):
         driver = Chrome('C:/Users/Gabriel/Desktop/web-scraping/driver/chromedriver.exe', options=options)
         driver.get(__url)
         Select(driver.find_element_by_name(__year)).select_by_value('2020')
+        Select(driver.find_element_by_name(__region)).select_by_value('1')
+        Select(driver.find_element_by_name(__police_station)).select_by_value('1410')
+        driver.find_element_by_id(__button).click()
         sleep(1.5)
-        tabela = driver.find_element_by_id('conteudo_repAnos_divGrid_0').get_attribute('innerHTML')
+        td = list(map(lambda x: x.text, BeautifulSoup(driver.find_element_by_id(__table)
+                                                      .get_attribute('innerHTML'), 'html.parser').select('td')))
+
+        print(td[196: 196 + 14])
 
     def test_outro(self):
-        print(pprint(operations.get_collection_datas(True, {"regiao": "se"})))
+        current_datas: List[dict] = [{
+            "nome": 'Gabriel',
+            'idade': 20
+        }, {
+            "nome": 'Gabriel',
+            'idade': 21
+        }, {
+            "nome": 'Gabriel',
+            'idade': 22
+        }, {
+            "nome": 'Gabriel',
+            'idade': 23
+        }]
 
+        scraping_datas: List[dict] = [{
+            "nome": 'Gabriel',
+            'idade': 20
+        }, {
+            "nome": 'Gabriel',
+            'idade': 29
+        }, {
+            "nome": 'Gabriel',
+            'idade': 42
+        }, {
+            "nome": 'Gabriel',
+            'idade': 53
+        }]
 
-if __name__ == '__main__':
-    unittest.main()
+        # _old = list(filter(lambda old: old != scraping_datas, current_datas))
+        # print(_old)
+        # _new = list(filter(lambda new: new != current_datas, scraping_datas))
+        # print(_new)
+        # operations.insert(current_datas)
+        # operations.update_datas(list(filter(lambda old: old != scraping_datas, current_datas)),
+        #                         list(filter(lambda new: new != current_datas, scraping_datas)))
+
+        a = ['Jan', 'Fev', 'Mar', 'Abr', 'Mai', 'Total']
+
+        def teste_lambda():
+            inicio = time()
+            print(list(map(lambda x: x.lower(), filter(lambda y: y != 'Total', a))))
+            fim = time()
+            print(fim - inicio)
+
+        def teste_for():
+            inicio = time()
+            print([x.lower() for x in a if x != 'Total'])
+            fim = time()
+            print(fim - inicio)
+
+        teste_for()
+        print('============================')
+        teste_lambda()
+
+        # for x in range(len(scraping_datas)):
+        #     a = scraping_datas[x]
+        #     b = current_datas[x]
+        #     print(list(filter(lambda y: y != a, b.items())))
+
+        if __name__ == '__main__': unittest.main()

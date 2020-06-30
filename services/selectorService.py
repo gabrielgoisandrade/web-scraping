@@ -69,6 +69,7 @@ class SelectorService:
 
         sleep(1.5)
         select_value = self.__helper.get_values(name)[value]
+
         self.__helper.select_option(name, select_value)
 
     def select_police_stations(self, year, name: str, id_table: str) -> None:
@@ -90,8 +91,12 @@ class SelectorService:
             sleep(1.5)
             self.__helper.select_option(name, option_value)
 
-            scraping_datas.append(extractor.prepare_records(police_station, police_station.split('-')[1].strip(),
-                                                            raw_table=self.__helper.get_raw_table(id_table=id_table)))
+            print(extractor.prepare_records(raw_table=self.__helper.get_raw_table(id_table),
+                                            crime='ESTUPRO', police_station=police_station))
+            exit()
+            # scraping_datas.append(extractor.prepare_records(police_station, police_station.split('-')[1].strip(),
+            #                                                 raw_table=self.__helper.get_raw_table(id_table=id_table),
+            #                                                 crime='ESTUPRO'))
 
         # if year == datetime.now().year - 1:
         #     if len(get_collection(last_occurrences())) == 0:

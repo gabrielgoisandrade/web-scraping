@@ -8,7 +8,7 @@ class SelectorHelper:
 
     def get_values(self, name: str) -> dict:
         """
-        Pega os dados de determinado select option.
+        Pega os dados de determinado select option, estruturando num dict.
 
         :param name: name do select.
         :return: dict contendo as opções e seus valores correspondentes.
@@ -20,7 +20,7 @@ class SelectorHelper:
 
         value: list = [option.get_attribute('value') for option in select]
 
-        return {key[option]: value[option] for option in range(len(key))}
+        return dict(zip(key, value))
 
     def select_option(self, name: str, value) -> None:
         """
@@ -31,6 +31,7 @@ class SelectorHelper:
         """
 
         selected_option = Select(self.__driver.find_element_by_name(name))
+
         selected_option.select_by_value(str(value))
 
     def get_raw_table(self, id_table: str) -> list:

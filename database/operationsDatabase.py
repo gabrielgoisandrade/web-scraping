@@ -2,10 +2,10 @@ from typing import Optional, Union, List
 
 from pymongo.collection import Collection
 from pymongo.database import Database
-from pymongo.errors import OperationFailure, BulkWriteError
+from pymongo.errors import OperationFailure
 
 from database.connectionDatabase import ConnectionDatabase
-from log import info, error, critical
+from log import info, error
 from .helper import helper
 
 
@@ -91,10 +91,10 @@ class OperationsDatabase:
         if data_filter: return coll.find_one(data_filter)
         return list(coll.find({}))
 
-    @helper.operation
-    def insert(self, data: Union[List[dict], dict], is_current_occurrences: Optional[bool] = False) -> None:
+    @helper.void_operation
+    def insert(self, data: List[dict], is_current_occurrences: Optional[bool] = False) -> None:
         """
-        Insersão de um, ou mais dados na collection especificada.\n
+        Insersão de dados na collection especificada.\n
 
         >>> 'current_occurrences' if is_current_occurrences else 'last_occurrences'
 
@@ -103,25 +103,20 @@ class OperationsDatabase:
         """
 
         coll: Collection = self.__collection(is_current_occurrences)
-        coll.insert_many(data) if type(data) is list else coll.insert_one(data)
+        coll.insert_many(data)
 
+    @helper.void_operation
     def update_datas(self, old_datas: List[dict], new_datas: List[dict],
                      is_current_occurrences: Optional[bool] = False) -> None:
         """
-        Atualiza os dados de uma determinada collection.
+        Atualização de dados de uma determinada collection.\n
 
-        :param is_current_occurrences: boolean para identificar se a collection a ser atualizada será a com os dados do ano
-                atual, ou do ano passado.
+        >>> 'current_occurrences' if is_current_occurrences else 'last_occurrences'
+
+        :param is_current_occurrences: boolean para identificar em qual collection a operação será realizada.
         :param old_datas: dados dados a serem atualizadods.
         :param new_datas: dados a serem inseridos.
         """
 
         coll: Collection = self.__collection(is_current_occurrences)
-
-        try:
-            [coll.update_one(old_datas[value], {'$set': new_datas[value]}) for value in range(len(new_datas))]
-            info('Dados atualizados com sucesso.')
-        except BulkWriteError as e:
-            critical(f'Erro ao atualizar dados. Detalhes: {e.details}')
-        finally:
-            self.__CONN.close()
+        for values in range(len(new_datas)): coll.update_one(old_datas[values], {'$set': new_datas[values]})

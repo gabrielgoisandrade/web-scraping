@@ -2,7 +2,7 @@ from logging import basicConfig, error, INFO, info, critical
 from os.path import join
 
 
-class Log:
+class LogConfig:
 
     def __init__(self, msg: str):
         basicConfig(filename=join('logs', 'app.log'), filemode='w+',

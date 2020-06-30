@@ -1,10 +1,10 @@
-from .logConfig import Log
+from .logConfig import LogConfig
 
 
-def info(msg: str) -> None: Log(msg).log_info()
+def info(msg: str) -> None: LogConfig(msg).log_info()
 
 
-def error(msg: str) -> None: Log(msg).log_error()
+def error(msg: str) -> None: LogConfig(msg).log_error()
 
 
-def critical(msg: str) -> None: Log(msg).log_critical()
+def critical(msg: str) -> None: LogConfig(msg).log_critical()
