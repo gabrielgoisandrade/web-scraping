@@ -11,7 +11,7 @@ class ExtractorService:
 
         :param raw_table: código HTML coletado durante a seleção de dados.
         :param crime: crime usado como palavra chave, para obter os valores por mês.
-        :param police_station: informação da delegacia e região onde atua.
+        :param police_station: informação da delegacia e região aonde atua.
         :return: dict com as informações de delegacia e registros de estupro.
         """
 
