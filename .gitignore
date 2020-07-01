@@ -252,5 +252,5 @@ pip-selfcheck.json
 
 #exe
 .exe
-
+/tests
 #logs
