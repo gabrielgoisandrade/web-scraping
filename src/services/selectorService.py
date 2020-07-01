@@ -1,3 +1,4 @@
+from datetime import datetime
 from os.path import join
 from time import sleep
 from typing import List
@@ -6,7 +7,8 @@ from selenium.webdriver import Chrome
 from selenium.webdriver.chrome.options import Options
 from selenium.webdriver.chrome.webdriver import WebDriver
 
-from selector.helper.selectorHelper import SelectorHelper
+from src.database import operations
+from src.selector.helper.selectorHelper import SelectorHelper
 
 
 class SelectorService:
@@ -14,7 +16,7 @@ class SelectorService:
     def __init__(self):
         options = Options()
         options.headless = True
-        self.__driver: WebDriver = Chrome(executable_path=join('driver', 'chromedriver.exe'), options=options)
+        self.__driver: WebDriver = Chrome(executable_path=join('utils/driver', 'chromedriver.exe'), options=options)
         self.__helper = SelectorHelper(self.__driver)
 
     def open_browser(self, url: str) -> None:
@@ -81,7 +83,7 @@ class SelectorService:
         :param id_table: id da tabela.
         """
 
-        from services import extractor
+        from src.services import extractor
 
         scraping_datas: List[dict] = []
 
@@ -91,13 +93,12 @@ class SelectorService:
             sleep(1.5)
             self.__helper.select_option(name, option_value)
 
-            print(extractor.prepare_records(raw_table=self.__helper.get_raw_table(id_table),
-                                            crime='ESTUPRO', police_station=police_station))
-            exit()
-            # scraping_datas.append(extractor.prepare_records(police_station, police_station.split('-')[1].strip(),
-            #                                                 raw_table=self.__helper.get_raw_table(id_table=id_table),
-            #                                                 crime='ESTUPRO'))
+            raw_table: list = self.__helper.get_raw_table(id_table)
 
-        # if year == datetime.now().year - 1:
-        #     if len(get_collection(last_occurrences())) == 0:
-        #         send.send_datas(last_occurrences(), scraping_datas)
+            records: dict = extractor.records(raw_table=raw_table, crime='ESTUPRO',
+                                              police_station=police_station)
+
+            scraping_datas.append(records)
+
+        operations.insert(scraping_datas) if year == datetime.now().year - 1 \
+            else operations.insert(scraping_datas, True)

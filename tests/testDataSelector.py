@@ -1,6 +1,6 @@
 import unittest
 from functools import wraps
-from time import sleep, time
+from time import sleep
 from typing import List, Union, Optional
 
 from bs4 import BeautifulSoup
@@ -9,7 +9,7 @@ from selenium.webdriver import Chrome
 from selenium.webdriver.chrome.options import Options
 from selenium.webdriver.support.select import Select
 
-from log import error
+from src.log import error
 
 
 class DatabaseHelper:
@@ -42,7 +42,7 @@ class MyTestCase(unittest.TestCase):
         __table: str = 'conteudo_divMensal'
         options = Options()
         options.headless = True
-        driver = Chrome('C:/Users/Gabriel/Desktop/web-scraping/driver/chromedriver.exe', options=options)
+        driver = Chrome('/utils/driver/chromedriver.exe', options=options)
         driver.get(__url)
         Select(driver.find_element_by_name(__year)).select_by_value('2020')
         Select(driver.find_element_by_name(__region)).select_by_value('1')
@@ -60,9 +60,6 @@ class MyTestCase(unittest.TestCase):
             'idade': 20
         }, {
             "nome": 'Gabriel',
-            'idade': 21
-        }, {
-            "nome": 'Gabriel',
             'idade': 22
         }, {
             "nome": 'Gabriel',
@@ -77,11 +74,19 @@ class MyTestCase(unittest.TestCase):
             'idade': 29
         }, {
             "nome": 'Gabriel',
-            'idade': 42
+            'idade': 21
         }, {
             "nome": 'Gabriel',
-            'idade': 53
+            'idade': 23
         }]
+        new = [scraping_datas[value] for value in range(len(scraping_datas))
+               if current_datas[value] != scraping_datas[value]]
+
+        old = [current_datas[value] for value in range(len(scraping_datas))
+               if scraping_datas[value] != current_datas[value]]
+
+        print(new)
+        print(old)
 
         # _old = list(filter(lambda old: old != scraping_datas, current_datas))
         # print(_old)
@@ -91,27 +96,27 @@ class MyTestCase(unittest.TestCase):
         # operations.update_datas(list(filter(lambda old: old != scraping_datas, current_datas)),
         #                         list(filter(lambda new: new != current_datas, scraping_datas)))
 
-        a = ['Jan', 'Fev', 'Mar', 'Abr', 'Mai', 'Total']
-
-        def teste_lambda():
-            inicio = time()
-            print(list(map(lambda x: x.lower(), filter(lambda y: y != 'Total', a))))
-            fim = time()
-            print(fim - inicio)
-
-        def teste_for():
-            inicio = time()
-            print([x.lower() for x in a if x != 'Total'])
-            fim = time()
-            print(fim - inicio)
-
-        teste_for()
-        print('============================')
-        teste_lambda()
-
-        # for x in range(len(scraping_datas)):
-        #     a = scraping_datas[x]
-        #     b = current_datas[x]
-        #     print(list(filter(lambda y: y != a, b.items())))
-
-        if __name__ == '__main__': unittest.main()
+        # a = ['Jan', 'Fev', 'Mar', 'Abr', 'Mai', 'Total']
+        #
+        # def teste_lambda():
+        #     inicio = time()
+        #     print(list(map(lambda x: x.lower(), filter(lambda y: y != 'Total', a))))
+        #     fim = time()
+        #     print(fim - inicio)
+        #
+        # def teste_for():
+        #     inicio = time()
+        #     print([x.lower() for x in a if x != 'Total'])
+        #     fim = time()
+        #     print(fim - inicio)
+        #
+        # teste_for()
+        # print('============================')
+        # teste_lambda()
+        #
+        # # for x in range(len(scraping_datas)):
+        # #     a = scraping_datas[x]
+        # #     b = current_datas[x]
+        # #     print(list(filter(lambda y: y != a, b.items())))
+        #
+        # if __name__ == '__main__': unittest.main()

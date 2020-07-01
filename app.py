@@ -1,8 +1,8 @@
 from datetime import datetime
 from time import sleep
 
-from log import info
-from selector.dataSelector import DataSelector
+from src import DataSelector
+from src import info
 
 if __name__ == '__main__':
     current_year: int = datetime.now().year
@@ -11,7 +11,7 @@ if __name__ == '__main__':
     info('Aplicação iniciada.')
 
     while True:
-        info(f'Inciando coleta de dados de {current_year} e {last_year}.')
+        info(f'Inciando coleta de dados.')
         DataSelector([current_year, last_year]).select_datas()
 
         info('Aplicação finalizada. Aguardando nova retomada.')

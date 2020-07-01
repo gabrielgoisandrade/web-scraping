@@ -5,7 +5,7 @@ from os.path import join
 class LogConfig:
 
     def __init__(self, msg: str):
-        basicConfig(filename=join('logs', 'app.log'), filemode='w+',
+        basicConfig(filename=join('utils/logs', 'app.log'), filemode='w+',
                     format='%(name)s - %(levelname)s - %(asctime)s - %(message)s',
                     datefmt='%d-%b-%y %H:%M:%S', level=INFO)
         self.__msg = msg

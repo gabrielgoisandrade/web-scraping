@@ -16,11 +16,11 @@ class SelectorHelper:
 
         select = Select(self.__driver.find_element_by_name(name)).options
 
-        key: list = [option.text for option in select]
+        keys: list = list(map(lambda option: option.text, select))
 
-        value: list = [option.get_attribute('value') for option in select]
+        values: list = list(map(lambda value: value.get_attribute('value'), select))
 
-        return dict(zip(key, value))
+        return dict(zip(keys, values))
 
     def select_option(self, name: str, value) -> None:
         """
@@ -34,6 +34,21 @@ class SelectorHelper:
 
         selected_option.select_by_value(str(value))
 
+    def filter_police_stations(self, name: str) -> dict:
+        """
+        Remove delegacias que não serão usadas durante o scraping.
+
+        :param name: name do select option.
+        :return: dict com apenas as delegacias que serão usadas durante o scraping.
+        """
+
+        select_values: dict = self.get_values(name)
+
+        return {key: value for key, value in select_values.items()
+                if 'DP' in key
+                and 'Central de Flagrantes II' not in key
+                and 'Pessoa com Deficiência' not in key}
+
     def get_raw_table(self, id_table: str) -> list:
         """
         Pega o código HTML da tabela, com os registros que são gerados a cada vez que uma delegacia é
@@ -44,18 +59,3 @@ class SelectorHelper:
         """
 
         return self.__driver.find_element_by_id(id_table).get_attribute('innerHTML')
-
-    def filter_police_stations(self, name: str) -> dict:
-        """
-        Remove delegacias que não serão usadas durante o scraping.
-
-        :param name: name do select option.
-        :return: dict com apenas as delegacias que serão usadas durante o scraping.
-        """
-
-        select_values = self.get_values(name)
-
-        return {key: value for key, value in select_values.items()
-                if 'DP' in key
-                and 'Central de Flagrantes II' not in key
-                and 'Pessoa com Deficiência' not in key}

@@ -1,9 +1,9 @@
 from functools import wraps
-from typing import Callable
+from typing import Callable, List
 
 from pymongo.errors import PyMongoError, BulkWriteError, OperationFailure
 
-from log import error
+from src.log import error
 
 
 class DatabaseHelper:
@@ -28,7 +28,7 @@ class DatabaseHelper:
                 error(e.__str__())
                 raise
             finally:
-                from database import conn
+                from src.database import conn
                 conn.close()
             return func(*args, **kwargs)
 
@@ -57,7 +57,23 @@ class DatabaseHelper:
                 error(e.__str__())
                 raise TypeError('Erro no tipo de dado.')
             finally:
-                from database import conn
+                from src.database import conn
                 conn.close()
 
         return inner
+
+    @staticmethod
+    def remove_element(data: List[dict], to_remove: str) -> List[dict]:
+        """
+        Remove um elemento de um list.
+
+        :param data: dados contendo esse elemento.
+        :param to_remove: elemento a ser removido.
+        :return: dados sem o elemento especificado.
+        """
+
+        processed_datas: List[dict] = []
+        for value in data:
+            value.pop(to_remove)
+            processed_datas.append(value)
+        return processed_datas

@@ -1,7 +1,7 @@
 from pymongo import MongoClient
 from pymongo.errors import (ConnectionFailure, ConfigurationError, ServerSelectionTimeoutError)
 
-from log import info, critical
+from src.log import info, critical
 
 
 class ConnectionDatabase:

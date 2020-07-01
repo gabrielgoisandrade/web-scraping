@@ -1,5 +1,5 @@
-from log import info
-from services import (selector)
+from src.log import info
+from src.services import (selector)
 
 
 class DataSelector:
@@ -25,7 +25,7 @@ class DataSelector:
         selector.click_button(self.__button)
 
         for year in self.__years:
-            info('Selecionando o ano.')
+            info(f'Selecionando o ano {year}.')
             selector.select_year(name=self.__year, value=year)
 
             info('Selecionando a região.')
