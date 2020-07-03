@@ -16,7 +16,7 @@ class SelectorService:
     def __init__(self):
         options = Options()
         options.headless = True
-        self.__driver: WebDriver = Chrome(executable_path=join('utils/driver', 'chromedriver.exe'), options=options)
+        self.__driver: WebDriver = Chrome(executable_path=join('driver', 'chromedriver.exe'), options=options)
         self.__helper = SelectorHelper(self.__driver)
 
     def open_browser(self, url: str) -> None:
@@ -100,5 +100,5 @@ class SelectorService:
 
             scraping_datas.append(records)
 
-        operations.insert(scraping_datas) if year == datetime.now().year - 1 \
-            else operations.insert(scraping_datas, True)
+        operations.verify_datas(scraping_datas) if year == datetime.now().year - 1 \
+            else operations.verify_datas(scraping_datas, True)

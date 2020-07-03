@@ -1,6 +1,6 @@
 from typing import Optional, Union, List
 
-from pymongo import ASCENDING, DESCENDING
+from pymongo import ASCENDING
 from pymongo.collection import Collection
 from pymongo.database import Database
 from pymongo.errors import OperationFailure
@@ -56,94 +56,98 @@ class OperationsDatabase:
                 error(f'Erro ao criar a collection: {e.__str__()}')
         return db.get_collection(coll_name)
 
-    @helper.operation
-    def __count_documents(self, is_current_occurrences: Optional[bool] = False,
-                          data_filter: Optional[dict] = None) -> int:
+    def verify_datas(self, scraping_datas: List[dict], is_current_occurrences: Optional[bool] = False) -> None:
         """
-        Retorna a quantidade de dados da collection.\n
+        Verifica a necessidade de insersão, ou atualização dos dados já existentes.\n
 
-        >>> 'current_occurrences' if is_current_occurrences else 'last_occurrences'
+        :param scraping_datas: dados obtidos durante o scraping.
+        :param is_current_occurrences: boolean usado para identificar em qual collection os daodos serão inseridos,
+                ou atualizados
+        """
 
-        :param is_current_occurrences: boolean para identificar em qual collection será realizada a operação.
+        coll: Collection = self.__collection(is_current_occurrences)
+
+        if self.__count_documents(coll) == 0:
+            info(f'Insersão de {len(scraping_datas)} novo(s) dado(s) na collection '
+                 f'{"current_occurrences" if is_current_occurrences else "last_occurrences"}.')
+            self.__insert(scraping_datas, coll)
+        else:
+            self.__update_datas(scraping_datas, coll)
+
+    @helper.operation
+    def __count_documents(self, collection: Collection, data_filter: Optional[dict] = None) -> int:
+        """
+        Retorna a quantidade de dados da collection.
+
+        :param collection: collection onde a quantidade de documents será retornada.
         :param data_filter: dado a ser filtrado.
         :return: quantidade de dados.
         """
 
-        coll: Collection = self.__collection(is_current_occurrences)
-
-        if data_filter: return coll.count_documents(data_filter)
-        return coll.count_documents({})
+        return collection.count_documents(data_filter) if data_filter else collection.count_documents({})
 
     @helper.operation
-    def __get_collection_datas(self, is_current_occurrences: Optional[bool] = False,
-                               data_filter: Optional[dict] = None,
-                               order: Optional[str] = '_id',
-                               is_ascending: Optional[bool] = False) -> Union[List[dict], dict]:
+    def __get_collection_datas(self, collection: Collection, data_filter: Optional[dict] = None,
+                               field: Optional[str] = '_id',
+                               order: Optional[bool] = ASCENDING) -> Union[List[dict], dict]:
         """
         Retorna os dados da collection especificada.\n
 
-        >>> 'current_occurrences' if is_current_occurrences else 'last_occurrences'
-
-        :param is_current_occurrences: boolean para identificar em qual collection a operação será realizada.
+        :param collection: collection onde os dados serão retornados.
         :param data_filter: dado a ser filtrado.
-        :param order: forma que o dado será ordenado.
-        :param is_ascending: boolean para identificar se os dados virão na ordem crescente ou descrescente.
+        :param field: forma que o dado será ordenado.
+        :param order: boolean para identificar se os dados virão na ordem crescente ou descrescente.
         :return: dados da collection.
         """
 
-        coll: Collection = self.__collection(is_current_occurrences)
-
-        if data_filter: return coll.find_one(data_filter)
-        return list(coll.find({}).sort(order, ASCENDING if is_ascending else DESCENDING))
+        return collection.find_one(data_filter) if data_filter else list(collection.find({}).sort(field, order))
 
     @helper.void_operation
-    def __update_datas(self, new_datas: List[dict], is_current_occurrences: Optional[bool] = False) -> None:
+    def __update_datas(self, new_datas: List[dict], collection: Collection) -> None:
         """
         Atualização de dados de uma determinada collection.\n
 
-        >>> 'current_occurrences' if is_current_occurrences else 'last_occurrences'
-
-        :param is_current_occurrences: boolean para identificar em qual collection a operação será realizada.
+        :param collection: collection onde os dados serão atualizados.
         :param new_datas: dados a serem inseridos.
         """
 
-        coll: Collection = self.__collection(is_current_occurrences)
+        collection_datas: List[dict] = helper.remove_element(self.__get_collection_datas(collection, field='delegacia'),
+                                                             '_id')
 
-        current_datas: List[dict] = helper.remove_element(
-            self.__get_collection_datas(is_current_occurrences, is_ascending=True), '_id')
+        to_update: List[dict] = [new_datas[value] for value in range(len(collection_datas)) if
+                                 new_datas[value] != collection_datas[value]]
 
-        new: List[dict] = [new_datas[value] for value in range(len(new_datas)) if
-                           current_datas[value] != new_datas[value]]
+        old_datas: List[dict] = [collection_datas[value] for value in range(len(collection_datas)) if
+                                 collection_datas[value] != new_datas[value]]
 
-        old: List[dict] = [current_datas[value] for value in range(len(new_datas)) if
-                           current_datas[value] != new_datas[value]]
+        if len(to_update) != 0:
+            info(f'Iniciando atualização de {len(to_update)} dado(s) na collection {collection.name}.')
 
-        if len(new) != 0:
-            info(f'Iniciando atualização de {len(new)} dado(s) na collection '
-                 f'{"current_occurrences" if is_current_occurrences else "last_occurrences"}.')
-
-            for values in range(len(new)): coll.update_one(old[values], {'$set': new[values]})
+            for value in range(len(to_update)): collection.update_one(old_datas[value], {'$set': to_update[value]})
             info("Dados atualizados com sucesso.")
         else:
-            info('Não há dados a serem atualizados.')
+            info(f'Não há dados a serem atualizados.')
+
+        if len(new_datas) != len(collection_datas):
+            to_insert: List[dict] = []
+            info(f'Encontrado {len(new_datas) - len(collection_datas)} novo(s) dado(s) obtido durante o scraping.')
+
+            for value in range(len(new_datas)):
+                datas: dict = self.__get_collection_datas(collection, {'delegacia': new_datas[value]['delegacia']})
+
+                if datas is None:
+                    to_insert.append(new_datas[value])
+            self.__insert(to_insert, collection)
+
+            info(f'{len(new_datas) - len(collection_datas)} novo(s) dado(s) inserido na collection {collection.name}.')
 
     @helper.void_operation
-    def insert(self, data: List[dict], is_current_occurrences: Optional[bool] = False) -> None:
+    def __insert(self, data: [List[dict], dict], collection: Collection) -> None:
         """
-        Insersão de novos dados em determinada collection, caso não haja dados inseridos na mesma.\n
-        Senão, haverá uma atualização nos dados existentes.\n
+        Insersão de novos dados.
 
-        >>> 'current_occurrences' if is_current_occurrences else 'last_occurrences'
-
+        :param collection: collection onde os dados serão inseridos.
         :param data: dados a serem inseridos.
-        :param is_current_occurrences: boolean para identificar em qual collection a operação será realizada.
         """
 
-        coll: Collection = self.__collection(is_current_occurrences)
-
-        if self.__count_documents(is_current_occurrences) == 0:
-            info(f'Insersão de {len(data)} novo(s) dado(s) na collection '
-                 f'{"current_occurrences" if is_current_occurrences else "last_occurrences"}.')
-            coll.insert_many(data)
-        else:
-            self.__update_datas(data, is_current_occurrences)
+        collection.insert_many(data) if type(data) == list else collection.insert_one(data)
