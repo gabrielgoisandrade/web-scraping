@@ -29,10 +29,6 @@ web-scraping
 |   |
 |   |__ chromedriver.exe
 |
-|__ logs
-|   |
-|   |__ app.log
-|
 |__ src
 |   |
 |   |__ database
