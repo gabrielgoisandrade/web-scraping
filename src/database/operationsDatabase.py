@@ -5,9 +5,9 @@ from pymongo.collection import Collection
 from pymongo.database import Database
 from pymongo.errors import OperationFailure
 
-from src.database import ConnectionDatabase
+from src.database import (remove_element, void_operation, operation)
+from src.database.connectionDatabase import ConnectionDatabase
 from src.log import info, error
-from .helper import helper
 
 
 class OperationsDatabase:
@@ -33,7 +33,7 @@ class OperationsDatabase:
                 error(f'Erro ao criar o database: {e.__str__()}')
         return cls.__CONN.get_database(db_name)
 
-    def __collection(self, is_current_occurrences: Optional[bool] = False) -> Collection:
+    def collection(self, is_current_occurrences: Optional[bool] = False) -> Collection:
         """
         Retorna a collection especificada, caso exista.\n
         Senão, uma nova será criada e retornada.\n
@@ -56,26 +56,8 @@ class OperationsDatabase:
                 error(f'Erro ao criar a collection: {e.__str__()}')
         return db.get_collection(coll_name)
 
-    def verify_datas(self, scraping_datas: List[dict], is_current_occurrences: Optional[bool] = False) -> None:
-        """
-        Verifica a necessidade de insersão, ou atualização dos dados já existentes.\n
-
-        :param scraping_datas: dados obtidos durante o scraping.
-        :param is_current_occurrences: boolean usado para identificar em qual collection os daodos serão inseridos,
-                ou atualizados
-        """
-
-        coll: Collection = self.__collection(is_current_occurrences)
-
-        if self.__count_documents(coll) == 0:
-            info(f'Insersão de {len(scraping_datas)} novo(s) dado(s) na collection '
-                 f'{"current_occurrences" if is_current_occurrences else "last_occurrences"}.')
-            self.__insert(scraping_datas, coll)
-        else:
-            self.__update_datas(scraping_datas, coll)
-
-    @helper.operation
-    def __count_documents(self, collection: Collection, data_filter: Optional[dict] = None) -> int:
+    @operation
+    def count_documents(self, collection: Collection, data_filter: Optional[dict] = None) -> int:
         """
         Retorna a quantidade de dados da collection.
 
@@ -86,7 +68,7 @@ class OperationsDatabase:
 
         return collection.count_documents(data_filter) if data_filter else collection.count_documents({})
 
-    @helper.operation
+    @operation
     def __get_collection_datas(self, collection: Collection, data_filter: Optional[dict] = None,
                                field: Optional[str] = '_id',
                                order: Optional[bool] = ASCENDING) -> Union[List[dict], dict]:
@@ -102,8 +84,19 @@ class OperationsDatabase:
 
         return collection.find_one(data_filter) if data_filter else list(collection.find({}).sort(field, order))
 
-    @helper.void_operation
-    def __update_datas(self, new_datas: List[dict], collection: Collection) -> None:
+    @void_operation
+    def insert(self, data: [List[dict], dict], collection: Collection) -> None:
+        """
+        Insersão de novos dados.
+
+        :param collection: collection onde os dados serão inseridos.
+        :param data: dados a serem inseridos.
+        """
+
+        collection.insert_many(data) if type(data) == list else collection.insert_one(data)
+
+    @void_operation
+    def update_datas(self, new_datas: List[dict], collection: Collection) -> None:
         """
         Atualização de dados de uma determinada collection.\n
 
@@ -111,8 +104,8 @@ class OperationsDatabase:
         :param new_datas: dados a serem inseridos.
         """
 
-        collection_datas: List[dict] = helper.remove_element(self.__get_collection_datas(collection, field='delegacia'),
-                                                             '_id')
+        collection_datas: List[dict] = remove_element(
+            self.__get_collection_datas(collection, field='delegacia'), '_id')
 
         to_update: List[dict] = [new_datas[value] for value in range(len(collection_datas)) if
                                  new_datas[value] != collection_datas[value]]
@@ -137,17 +130,6 @@ class OperationsDatabase:
 
                 if datas is None:
                     to_insert.append(new_datas[value])
-            self.__insert(to_insert, collection)
+            self.insert(to_insert, collection)
 
             info(f'{len(new_datas) - len(collection_datas)} novo(s) dado(s) inserido na collection {collection.name}.')
-
-    @helper.void_operation
-    def __insert(self, data: [List[dict], dict], collection: Collection) -> None:
-        """
-        Insersão de novos dados.
-
-        :param collection: collection onde os dados serão inseridos.
-        :param data: dados a serem inseridos.
-        """
-
-        collection.insert_many(data) if type(data) == list else collection.insert_one(data)

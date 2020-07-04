@@ -1,38 +1,31 @@
 from src.log import info
-from src.services import (selector)
+from ..services.selectorService import SelectorService
 
 
 class DataSelector:
-    __url: str = 'http://www.seguranca.sp.gov.br/Estatistica/Pesquisa.aspx'
-    __button: str = 'conteudo_btnMensal'
-    __year: str = 'ctl00$conteudo$ddlAnos'
-    __police_station: str = 'ctl00$conteudo$ddlDelegacias'
-    __region: str = 'ctl00$conteudo$ddlRegioes'
-    __city: str = 'ctl00$conteudo$ddlMunicipios'
-    __table: str = 'conteudo_divMensal'
+    __selector = SelectorService()
 
     def __init__(self, years: list): self.__years = years
 
     def select_datas(self):
         """
-        Método responsável por interagir com todos os filtros, e elementos do site, fazendo com que os dados
+        Método responsável por interagir com todos os filtros e elementos do site, fazendo com que os dados
         a serem extraídos fiquem acessíveis.
-
         """
 
-        selector.open_browser(self.__url)
+        self.__selector.open_browser()
 
-        selector.click_button(self.__button)
+        self.__selector.click_button()
 
         for year in self.__years:
             info(f'Selecionando o ano {year}.')
-            selector.select_year(name=self.__year, value=year)
+            self.__selector.select_year(value=str(year))
 
             info('Selecionando a região.')
-            selector.select_region(name=self.__region, value='Capital')
+            self.__selector.select_region(value='Capital')
 
             info('Selecionando o município.')
-            selector.select_city(name=self.__city, value='São Paulo')
+            self.__selector.select_city(value='São Paulo')
 
             info('Selecionando as delegacias.')
-            selector.select_police_stations(year=year, name=self.__police_station, id_table=self.__table)
+            self.__selector.select_police_stations(year=year)

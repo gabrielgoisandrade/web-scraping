@@ -7,6 +7,7 @@ from src.log import info, critical
 class ConnectionDatabase:
     __PSSW: str = 'DX7cYLYxxw65gyN'
     __DATABASE: str = 'scraping'
+    __CLUSTER: str = 'personal-projects'
 
     @classmethod
     def __connection(cls) -> MongoClient:
@@ -20,7 +21,7 @@ class ConnectionDatabase:
 
         try:
             connection: MongoClient = MongoClient(f'mongodb+srv://projects:{cls.__PSSW}@'
-                                                  f'personal-projects-5djcq.mongodb.net/{cls.__DATABASE}?'
+                                                  f'{cls.__CLUSTER}-5djcq.mongodb.net/{cls.__DATABASE}?'
                                                   f'retryWrites=true&w=majority')
             info('Connected!')
             return connection

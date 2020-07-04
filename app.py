@@ -1,5 +1,4 @@
 from datetime import datetime
-from time import sleep
 
 from src import DataSelector
 from src import info
@@ -10,9 +9,5 @@ if __name__ == '__main__':
 
     info('Aplicação iniciada.')
 
-    while True:
-        info(f'Inciando coleta de dados.')
-        DataSelector([current_year, last_year]).select_datas()
-
-        info('Aplicação finalizada. Aguardando nova retomada.')
-        sleep(24 * 3600)
+    info(f'Inciando coleta de dados.')
+    DataSelector([current_year, last_year]).select_datas()

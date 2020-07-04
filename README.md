@@ -1,90 +1,74 @@
-# Serviço de Web Scraping - Secretaria do Estado de São Paulo
-
+# Web Scraping - Secretaria do Estado de São Paulo
 
 ## Descrição
+[ssp-url]: https://www.ssp.sp.gov.br/
 
-**Esse serviço é parte de um projeto da faculdade, que consiste em mapear as regiões com maiores índices de estupro, em São Paulo.  
-O serviço é responsável por realizar a captura dos dados referentes a estupro tanto do ano passado, quando do ano atual, 
-realizando a junção dos mesmos em um único dado e os enviando diretamente ao Mongodb Atlas.**
+**Extração de dados referentes a estupro, diretamente da _[Secretaria do Estado de São Paulo][ssp-url]_.  
+Os dados que estão sendo extraídos são tanto do ano passado, quanto do ano atual.**
+
+**Os dados são tratados, estruturados e, por fim, enviados para o banco de dados.  
+O tipo de banco de dados escolhido foi um NoSQL (MongoDB).**
+
+**Esse serviço conta com uma verificação de dados.   
+Ou seja, cada vez que o for detectada uma alteração e/ou inclusão de algum dado, por parte da SSP, os dados   
+(já armazenados no banco de dados) serão atualizados.**
 
 ### Iniciando o projeto
 Dentro do diretório do projeto, no terminal, rode o seguinte comando:
 
-```python
+```shell script
 pip install -r requirements.txt
  ``` 
-
-#### Database
-
-Mude as credenciais do database em:
-```text
-database
-|
-|__ __init__.py
-|
-|__ connection_database.py
-``` 
-
-Alterando as seguintes variáveis:
-```python
-__USER: str = 'seu user'
-__PSSW: str = 'sua senha'
-__CLUSTER: str = 'seu cluster'
-__DATABASE: str = 'seu database'
-```
 
 #### Estrutura 
 
 ```text
 web-scraping
 |
-|__ database
+|__ driver
 |   |
-|   |__ __init__.py
-|   |
-|   |__ connection_database.py
+|   |__ chromedriver.exe
 |
-|__ log
+|__ logs
 |   |
-|   |__ __init__.py
-|   |
-|   |__ log_config.py
+|   |__ app.log
 |
-|__ selector
+|__ src
 |   |
-|   |__ helper
+|   |__ database
 |   |   |
 |   |   |__ __init__.py
 |   |   |
-|   |   |__ selector_helper.py
-|   |   
-|   |__ __init__.py
+|   |   |__ connectionDatabase.py
+|   |   |
+|   |   |__ operationsDatabase.py
 |   |
-|   |__ data_selector.py
-|
-|__ services
-|   |
-|   |__ helper
+|   |__ log
 |   |   |
 |   |   |__ __init__.py
 |   |   |
-|   |   |__ extractor_helper.py
-|   |   |
-|   |   |__ send_data_helper.py
+|   |   |__ logConfig.py
 |   |   
+|   |__ selector
+|   |   |
+|   |   |__ __init__.py
+|   |   |
+|   |   |__ dataSelector.py
+|   |
+|   |__services
+|   |   |
+|   |   |__ __init__.py
+|   |   |
+|   |   |__ extractorService.py
+|   |   |
+|   |   |__ selectorService.py
+|   |   |
+|   |   |__ sendDataService.py
+|   |
 |   |__ __init__.py
-|   |
-|   |__ extractor_service.py
-|   |
-|   |__ selector_service.py
-|   |
-|   |__ send_data_service.py
-|   |
-|   |__ update_data_service.py
 |
 |__ app.py
-|
-|__ chromedriver.exe
+
 ```
 ---
 
@@ -96,3 +80,5 @@ Selenium message:session not created: This version of ChromeDriver only supports
 > **Acesse esse [link][chromedriver-url], baixe a versão mais atual do chromedriver (que seja compatível com a versão do seu browser), substitua o antigo e rode o projeto novamente.**
 
 [chromedriver-url]: https://chromedriver.chromium.org/downloads
+
+> ### O.B.S.: PROJETO COM FINALIDADE ACADÊMICA. 

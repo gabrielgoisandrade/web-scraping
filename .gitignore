@@ -29,11 +29,9 @@ build/
 
 ### VS Code ###
 .vscode/
-/hdiyc_front/node_modules
-/hdiyc-app/node_modules
+/node_modules
 
 # Logs
-logs
 *.log
 npm-debug.log*
 yarn-debug.log*

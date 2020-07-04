@@ -1,104 +1,82 @@
 from datetime import datetime
-from os.path import join
 from time import sleep
 from typing import List
 
-from selenium.webdriver import Chrome
-from selenium.webdriver.chrome.options import Options
-from selenium.webdriver.chrome.webdriver import WebDriver
-
-from src.database import operations
-from src.selector.helper.selectorHelper import SelectorHelper
+from src.services import (select_option, filter_police_stations, driver)
+from src.services.extractorService import ExtractorService
+from src.services.sendDataService import SendDataService
 
 
 class SelectorService:
+    __url: str = 'http://www.seguranca.sp.gov.br/Estatistica/Pesquisa.aspx'
+    __button: str = 'conteudo_btnMensal'
+    __year: str = 'ctl00$conteudo$ddlAnos'
+    __police_station: str = 'ctl00$conteudo$ddlDelegacias'
+    __region: str = 'ctl00$conteudo$ddlRegioes'
+    __city: str = 'ctl00$conteudo$ddlMunicipios'
+    __table: str = 'conteudo_divMensal'
 
-    def __init__(self):
-        options = Options()
-        options.headless = True
-        self.__driver: WebDriver = Chrome(executable_path=join('driver', 'chromedriver.exe'), options=options)
-        self.__helper = SelectorHelper(self.__driver)
+    @classmethod
+    def open_browser(cls) -> None:
+        """ Abre o navegador. """
 
-    def open_browser(self, url: str) -> None:
-        """
-        Abre o navegador na url passada.
+        driver.get(cls.__url)
 
-        :param url: endereço web do site a ser aberto.
-        """
-
-        self.__driver.get(url)
-
-    def click_button(self, _id: str) -> None:
-        """
-        Clica no botão que contém o id passado.
-
-        :param _id: id do botão a ser clicado.
-        """
+    @classmethod
+    def click_button(cls) -> None:
+        """ Clica no botão que contém o id passado. """
 
         sleep(1.5)
-        self.__driver.find_element_by_id(_id).click()
+        driver.find_element_by_id(cls.__button).click()
 
-    def select_year(self, name: str, value: int) -> None:
+    @classmethod
+    def select_year(cls, value: str) -> None:
         """
-        Seleciona um ano do select option.
+        Seleciona um ano.
 
-        :param name: name do select option.
         :param value: ano a ser selecionado.
         """
 
         sleep(1.5)
-        self.__helper.select_option(name, value)
+        select_option(cls.__year, value)
 
-    def select_region(self, name: str, value: str) -> None:
+    @classmethod
+    def select_region(cls, value: str) -> None:
         """
-        Seleciona uma região do select option.
+        Seleciona uma região.
 
-        :param name: name do select option.
         :param value: região a ser selecionada.
         """
 
         sleep(1.5)
-        select_value = self.__helper.get_values(name)[value]
-        self.__helper.select_option(name, select_value)
+        select_option(cls.__region, value)
 
-    def select_city(self, name: str, value: str) -> None:
+    @classmethod
+    def select_city(cls, value: str) -> None:
         """
-        Seleciona uma cidade do select option.
+        Seleciona uma cidade.
 
-        :param name: name do select option.
         :param value: cidade a ser selecionada.
         """
 
         sleep(1.5)
-        select_value = self.__helper.get_values(name)[value]
+        select_option(cls.__city, value)
 
-        self.__helper.select_option(name, select_value)
-
-    def select_police_stations(self, year, name: str, id_table: str) -> None:
+    @classmethod
+    def select_police_stations(cls, year: int) -> None:
         """
         Seleciona as delegacias e prepara os dados capturados para serem inseridos no banco de dados.
 
         :param year: ano da ocorrência.
-        :param name: name do select option.
-        :param id_table: id da tabela.
         """
-
-        from src.services import extractor
-
         scraping_datas: List[dict] = []
 
-        filtered_police_station: dict = self.__helper.filter_police_stations(name)
-
-        for police_station, option_value in filtered_police_station.items():
+        for police_station, option_value in filter_police_stations(cls.__police_station).items():
             sleep(1.5)
-            self.__helper.select_option(name, option_value)
+            select_option(cls.__police_station, police_station)
 
-            raw_table: list = self.__helper.get_raw_table(id_table)
-
-            records: dict = extractor.records(raw_table=raw_table, crime='ESTUPRO',
-                                              police_station=police_station)
-
+            records: dict = ExtractorService(police_station, cls.__table, 'ESTUPRO').records()
             scraping_datas.append(records)
 
-        operations.verify_datas(scraping_datas) if year == datetime.now().year - 1 \
-            else operations.verify_datas(scraping_datas, True)
+        SendDataService().verify_datas(scraping_datas) if year == datetime.now().year - 1 \
+            else SendDataService().verify_datas(scraping_datas, True)
