@@ -250,6 +250,5 @@ pip-selfcheck.json
 
 #exe
 /tests
-#logs
-/current_occurrences.json
-/last_occurrences.json
+#json
+.json
