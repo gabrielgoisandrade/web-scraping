@@ -1,7 +1,6 @@
 from datetime import datetime
 
-from src import DataSelector
-from src import info
+from src import (DataSelector, info)
 
 if __name__ == '__main__':
     current_year: int = datetime.now().year

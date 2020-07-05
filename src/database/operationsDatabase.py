@@ -5,7 +5,7 @@ from pymongo.collection import Collection
 from pymongo.database import Database
 from pymongo.errors import OperationFailure
 
-from src.database import (remove_element, void_operation, operation)
+from src.database import (remove_element, void_operation, operation, write)
 from src.database.connectionDatabase import ConnectionDatabase
 from src.log import info, error
 
@@ -69,9 +69,9 @@ class OperationsDatabase:
         return collection.count_documents(data_filter) if data_filter else collection.count_documents({})
 
     @operation
-    def __get_collection_datas(self, collection: Collection, data_filter: Optional[dict] = None,
-                               field: Optional[str] = '_id',
-                               order: Optional[bool] = ASCENDING) -> Union[List[dict], dict]:
+    def __get_documents(self, collection: Collection, data_filter: Optional[dict] = None,
+                        field: Optional[str] = '_id',
+                        order: Optional[bool] = ASCENDING) -> Union[List[dict], dict]:
         """
         Retorna os dados da collection especificada.\n
 
@@ -94,6 +94,7 @@ class OperationsDatabase:
         """
 
         collection.insert_many(data) if type(data) == list else collection.insert_one(data)
+        write.write_json(collection.name, remove_element(self.__get_documents(collection), '_id'))
 
     @void_operation
     def update_datas(self, new_datas: List[dict], collection: Collection) -> None:
@@ -104,8 +105,7 @@ class OperationsDatabase:
         :param new_datas: dados a serem inseridos.
         """
 
-        collection_datas: List[dict] = remove_element(
-            self.__get_collection_datas(collection, field='delegacia'), '_id')
+        collection_datas: List[dict] = remove_element(self.__get_documents(collection, field='delegacia'), '_id')
 
         to_update: List[dict] = [new_datas[value] for value in range(len(collection_datas)) if
                                  new_datas[value] != collection_datas[value]]
@@ -117,6 +117,9 @@ class OperationsDatabase:
             info(f'Iniciando atualização de {len(to_update)} dado(s) na collection {collection.name}.')
 
             for value in range(len(to_update)): collection.update_one(old_datas[value], {'$set': to_update[value]})
+
+            write.write_json(collection.name, remove_element(self.__get_documents(collection), '_id'))
+
             info("Dados atualizados com sucesso.")
         else:
             info(f'Não há dados a serem atualizados.')
@@ -126,7 +129,7 @@ class OperationsDatabase:
             info(f'Encontrado {len(new_datas) - len(collection_datas)} novo(s) dado(s) obtido durante o scraping.')
 
             for value in range(len(new_datas)):
-                datas: dict = self.__get_collection_datas(collection, {'delegacia': new_datas[value]['delegacia']})
+                datas: dict = self.__get_documents(collection, {'delegacia': new_datas[value]['delegacia']})
 
                 if datas is None:
                     to_insert.append(new_datas[value])

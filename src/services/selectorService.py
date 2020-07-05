@@ -2,7 +2,7 @@ from datetime import datetime
 from time import sleep
 from typing import List
 
-from src.services import (select_option, filter_police_stations, driver)
+from src.services import (select_option, filter_police_stations, driver, select_police_stations)
 from src.services.extractorService import ExtractorService
 from src.services.sendDataService import SendDataService
 
@@ -70,10 +70,11 @@ class SelectorService:
         :param year: ano da ocorrência.
         """
         scraping_datas: List[dict] = []
+        filtered_values = filter_police_stations(cls.__police_station)
 
-        for police_station, option_value in filter_police_stations(cls.__police_station).items():
-            sleep(1.5)
-            select_option(cls.__police_station, police_station)
+        for police_station in filtered_values.keys():
+            sleep(1)
+            select_police_stations(cls.__police_station, filtered_values[police_station])
 
             records: dict = ExtractorService(police_station, cls.__table, 'ESTUPRO').records()
             scraping_datas.append(records)
