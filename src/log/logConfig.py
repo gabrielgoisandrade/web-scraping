@@ -1,5 +1,4 @@
 from logging import basicConfig, error, INFO, info, critical
-from os.path import join
 
 
 class LogConfig:

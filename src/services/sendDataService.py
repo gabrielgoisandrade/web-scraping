@@ -2,8 +2,8 @@ from typing import List, Optional
 
 from pymongo.collection import Collection
 
-from src import info
 from src.database.operationsDatabase import OperationsDatabase
+from ..log import info
 
 
 class SendDataService:
@@ -24,7 +24,6 @@ class SendDataService:
         if cls.__operations.count_documents(coll) == 0:
             info(f'Insersão de {len(scraping_datas)} novo(s) dado(s) na collection '
                  f'{"current_occurrences" if is_current_occurrences else "last_occurrences"}.')
-
             cls.__operations.insert(scraping_datas, coll)
         else:
             cls.__operations.update_datas(scraping_datas, coll)

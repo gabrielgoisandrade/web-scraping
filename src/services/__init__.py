@@ -32,6 +32,21 @@ def select_option(name: str, value: str) -> None:
         raise NoSuchElementException(f'Não foi possível encontrar a opção com o valor {to_select}')
 
 
+def select_police_stations(name: str, value: str) -> None:
+    """
+    Seleciona uma delegacia.
+
+    :param name: name do select.
+    :param value: valor a ser selecionado.
+    """
+
+    try:
+        Select(driver.find_element_by_name(name)).select_by_value(str(value))
+    except NoSuchElementException as e:
+        error(e.__str__())
+        raise NoSuchElementException(f'Não foi possível encontrar a opção com o valor {value}')
+
+
 def get_values(name: str) -> dict:
     """
     Mapeia o select option pegando cada opção, valore e estruturando num dict.

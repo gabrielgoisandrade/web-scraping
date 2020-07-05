@@ -3,7 +3,10 @@ from typing import Callable, List
 
 from pymongo.errors import PyMongoError, BulkWriteError, OperationFailure
 
+from src.services.writeFileService import WriteFileService
 from ..log import error
+
+write = WriteFileService()
 
 
 def operation(func: Callable) -> Callable:
