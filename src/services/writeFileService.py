@@ -6,14 +6,6 @@ from typing import List
 class WriteFileService:
 
     @staticmethod
-    def write_csv():
-        pass
-
-    @staticmethod
-    def write_txt():
-        pass
-
-    @staticmethod
     def write_json(file_name: str, data: List[dict]) -> None:
         """
         Cria um arquivo JSON com os dados de determinada collection.

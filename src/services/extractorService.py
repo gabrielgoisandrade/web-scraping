@@ -18,9 +18,9 @@ class ExtractorService:
         """
 
         return {
-            'delegacia': self.__police_station,
-            'regiao': self.__region,
-            'registros': self.__get_records()
+            'policeStation': self.__police_station,
+            'region': self.__region,
+            'records': self.__get_records()
         }
 
     def __get_records(self) -> dict:
@@ -32,7 +32,8 @@ class ExtractorService:
         :return: dict contendo os registros de cada mês e o total.
         """
 
-        table_header: list = extract_table_value(self.__id_table, 'th')
+        table_header: list = ['dummy', 'jan', 'feb', 'mar', 'apr', 'may', 'jun', 'jul', 'aug', 'sep', 'oct', 'nov',
+                              'dec', 'total']
 
         table_datas: list = extract_table_value(self.__id_table, 'td')
 
@@ -47,12 +48,13 @@ class ExtractorService:
         else:
             records: list = table_datas[key_word: key_word + len(table_header)]
 
-            keys: list = list(map(lambda to_lower: to_lower.lower(),
-                                  filter(lambda value: value != 'Natureza', table_header)))
+            keys: list = list(filter(lambda value: value != 'dummy', table_header))
 
             records.pop(0)
 
-            values: list = list(map(lambda value: float(value.replace('...', '0')), records))
+            values: list = list(
+                map(lambda value: float(value.replace('...', '0')), records)
+            )
 
             info(f'Registros da região {self.__region} obtidos.')
 
